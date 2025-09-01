@@ -14,7 +14,7 @@ class crudRepository {
       return response;
     } catch (error) {
       // logger.error("something went wrong in the crud repo :create", { error });
-      console.log(error.message);
+      // console.log(error.message);
 
       throw error;
     }
