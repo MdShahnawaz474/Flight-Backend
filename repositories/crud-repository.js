@@ -29,6 +29,10 @@ class crudRepository {
       },
     });
 
+    if(!response){
+      throw new AppError("Not able to find the resources", StatusCodes.NOT_FOUND)
+    }
+
     return response;
   }
 
@@ -49,17 +53,21 @@ class crudRepository {
       return response;
     
   }
-
-  async update(id, data) {
-    
-      const response = await this.model.update({
-        data,
-        where: {
-          id: id,
-        },
-      });
-      return response;
+  
+async update(id, data) {
+  const response = await this.model.update(
+    data,   
+    {
+      where: { id: id },
+      returning: true, // (Postgres only, but useful to get updated row)
+    }
+  );
+  if(!response){
+    throw new AppError("Not able to find the resources", StatusCodes.NOT_FOUND) 
   }
+  return response;
+}
+
 }
 
 module.exports = crudRepository;
