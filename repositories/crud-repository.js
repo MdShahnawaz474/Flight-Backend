@@ -59,7 +59,6 @@ async update(id, data) {
     data,   
     {
       where: { id: id },
-      returning: true, // (Postgres only, but useful to get updated row)
     }
   );
   if(!response){
