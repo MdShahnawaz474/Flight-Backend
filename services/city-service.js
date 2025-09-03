@@ -70,8 +70,33 @@ async function updateCity (id,data){
 
 }
 
+async function  getAllCity() {
+  try {
+  const city = await cityRepository.getAll();
+  return city;
+  } catch (error) {
+     if (error.name === "SequelizeValidationError") {
+      let explanation = [];
+      error.errors.forEach((err) => {
+        explanation.push(err.message);
+      });
+      throw new AppError(explanation, StatusCodes.BAD_REQUEST);
+    }
+     if(error.statusCode===StatusCodes.NOT_FOUND){
+      throw new AppError("The City you requested to update is not present",error.statusCode)
+    }
+    throw new AppError(
+      "Can not update a city",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
+  
+  }
+
+}
+
 module.exports = {
   createCity,
   deleteCity,
-  updateCity
+  updateCity,
+  getAllCity
 };
