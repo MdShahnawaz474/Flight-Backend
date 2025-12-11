@@ -58,6 +58,7 @@ async function destroyAirplane(req, res) {
   try {
     const airplane = await AirplaneService.destroyAirplane(req.params.id);
     SuccessResponse.data = airplane;
+    SuccessResponse.message = "Successfully deleted the airplane";
     return res.status(StatusCodes.OK).json({message:SuccessResponse,data:airplane});
   } catch (error) {
     ErrorResponse.error = error;

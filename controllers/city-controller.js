@@ -7,6 +7,7 @@ async function createCity(req, res) {
       name: req.body.name,
     });
     SuccessResponse.data = city;
+    // SuccessResponse.message = "Successfully created a City";
     return res.status(StatusCodes.CREATED).json(SuccessResponse);
   } catch (error) {
     ErrorResponse.error = error;
@@ -19,6 +20,7 @@ async function deleteCity(req, res) {
     const { id } = req.params;
     const city = await CityService.deleteCity(id);
     SuccessResponse.data = city;
+    // SuccessResponse.message = "Successfully deleted the City";
     return res
       .status(StatusCodes.OK)
       .json({ message: SuccessResponse, data: city });
@@ -34,7 +36,7 @@ async function updateCity(req, res) {
     const body = req.body;
     const city = await CityService.updateCity(id,body);
     SuccessResponse.data = city;
-    SuccessResponse.message = "Successfully the City";
+    // SuccessResponse.message = "Successfully the City";
 
     return res.status(StatusCodes.OK).json(SuccessResponse);
   } catch (error) {
