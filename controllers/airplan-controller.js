@@ -59,17 +59,22 @@ async function destroyAirplane(req, res) {
     const airplane = await AirplaneService.destroyAirplane(req.params.id);
     SuccessResponse.data = airplane;
     SuccessResponse.message = "Successfully deleted the airplane";
-    return res.status(StatusCodes.OK).json({message:SuccessResponse,data:airplane});
+    return res
+      .status(StatusCodes.OK)
+      .json({ message: SuccessResponse, data: airplane });
   } catch (error) {
     ErrorResponse.error = error;
     return res.status(error.statusCode).json(ErrorResponse);
   }
 }
 
-async function updateAirplane(req,res) {
+async function updateAirplane(req, res) {
   try {
-   const airplane = await AirplaneService.updateAirplane(req.params.id, req.body);
-   SuccessResponse.data = airplane;
+    const airplane = await AirplaneService.updateAirplane(
+      req.params.id,
+      req.body
+    );
+    SuccessResponse.data = airplane;
     SuccessResponse.message = "Successfully Changed the airplane";
     return res.status(StatusCodes.OK).json(SuccessResponse);
   } catch (error) {
