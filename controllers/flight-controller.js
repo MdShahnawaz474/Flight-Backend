@@ -55,8 +55,14 @@ async function getAllFlights(req, res) {
     SuccessResponse.data = flights;
     return res.status(StatusCodes.OK).json(SuccessResponse);
   } catch (error) {
-    ErrorResponse.error = error;
-    return res.status(error.statusCode).json(ErrorResponse);
+  return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: error.message,
+        data: {},
+        error: error.explanation || error.message,
+      });
   }
 }
 module.exports = {

@@ -3,6 +3,7 @@ const { FlightRepository } = require("../repositories");
 const AppError = require("../utils/errors/appError");
 const { Airport } = require("../models");
 const { compareTime } = require("../utils/helpers/dateTime");
+const { Op } = require("sequelize");
 
 const flightRepository = new FlightRepository();
 
@@ -62,7 +63,9 @@ async function createFlight(data) {
 
 async function getAllFlights(query) {
   //trips
+  const endingTripTime = "23:59:00";
   let customFilter = {};
+  let sortFilter = [];
   if (query.trips) {
     [departureAirportId, arrivalAirportId] = query.trips.split("-");
     customFilter.departureAirportId = departureAirportId;
@@ -75,14 +78,45 @@ async function getAllFlights(query) {
       );
     }
   }
+  if (query.tripDate) {
+  const startDate = `${query.tripDate} 00:00:00`;
+  const endDate = `${query.tripDate} ${endingTripTime}`;
+
+  customFilter.departureTime = {
+    [Op.between]: [startDate, endDate]
+  };
+}
+
+  if(query.sort){
+  const params = query.sort.split(",");
+  const sortFilters = params.map((param)=>param.split("_"));
+  sortFilter=sortFilters
+  }
+  if(query.price){
+    [minPrice, maxPrice] = query.price.split("-");
+    customFilter.price = {
+      [Op.between]:[minPrice,((maxPrice===undefined)?200000:maxPrice)]
+    }
+
+  }
+  if (query.travellers){
+    customFilter.totalSeat={
+      [Op.gte]:query.travellers
+    }
+  }
+  console.log("Custom Filter", customFilter);
+  console.log("Sort Filter", sortFilter);
   try {
-    const flights= flightRepository.getAllFlights(customFilter);
+    const flights = flightRepository.getAllFlights(customFilter,sortFilter);
     return flights;
   } catch (error) {
-    throw new AppError("Cannot fetch data of all the flights",StatusCodes.INTERNAL_SERVER_ERROR)
+    throw new AppError(
+      "Cannot fetch data of all the flights",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 }
 module.exports = {
   createFlight,
-  getAllFlights
+  getAllFlights,
 };
