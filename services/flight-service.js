@@ -16,7 +16,7 @@ async function createFlight(data) {
     if (!departureAirport) {
       throw new AppError(
         "Departure airport does not exist",
-        StatusCodes.BAD_REQUEST
+        StatusCodes.BAD_REQUEST,
       );
     }
     //  Check arrival airport
@@ -26,7 +26,7 @@ async function createFlight(data) {
     if (!arrivalAirport) {
       throw new AppError(
         "Arrival airport does not exist",
-        StatusCodes.BAD_REQUEST
+        StatusCodes.BAD_REQUEST,
       );
     }
 
@@ -35,7 +35,7 @@ async function createFlight(data) {
     if (!isValidTime) {
       throw new AppError(
         "Arrival time must be greater than departure time",
-        StatusCodes.BAD_REQUEST
+        StatusCodes.BAD_REQUEST,
       );
     }
 
@@ -56,7 +56,7 @@ async function createFlight(data) {
     }
     throw new AppError(
       "Cannot Create a new flight object",
-      StatusCodes.INTERNAL_SERVER_ERROR
+      StatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
 }
@@ -74,49 +74,61 @@ async function getAllFlights(query) {
     if (arrivalAirportId === departureAirportId) {
       throw new AppError(
         "Arrival airport and departure airport cannot be same", // Fixed typo
-        StatusCodes.BAD_REQUEST
+        StatusCodes.BAD_REQUEST,
       );
     }
   }
   if (query.tripDate) {
-  const startDate = `${query.tripDate} 00:00:00`;
-  const endDate = `${query.tripDate} ${endingTripTime}`;
+    const startDate = `${query.tripDate} 00:00:00`;
+    const endDate = `${query.tripDate} ${endingTripTime}`;
 
-  customFilter.departureTime = {
-    [Op.between]: [startDate, endDate]
-  };
-}
-
-  if(query.sort){
-  const params = query.sort.split(",");
-  const sortFilters = params.map((param)=>param.split("_"));
-  sortFilter=sortFilters
+    customFilter.departureTime = {
+      [Op.between]: [startDate, endDate],
+    };
   }
-  if(query.price){
+
+  if (query.sort) {
+    const params = query.sort.split(",");
+    const sortFilters = params.map((param) => param.split("_"));
+    sortFilter = sortFilters;
+  }
+  if (query.price) {
     [minPrice, maxPrice] = query.price.split("-");
     customFilter.price = {
-      [Op.between]:[minPrice,((maxPrice===undefined)?200000:maxPrice)]
-    }
-
+      [Op.between]: [minPrice, maxPrice === undefined ? 200000 : maxPrice],
+    };
   }
-  if (query.travellers){
-    customFilter.totalSeat={
-      [Op.gte]:query.travellers
-    }
+  if (query.travellers) {
+    customFilter.totalSeat = {
+      [Op.gte]: query.travellers,
+    };
   }
   console.log("Custom Filter", customFilter);
   console.log("Sort Filter", sortFilter);
   try {
-    const flights = flightRepository.getAllFlights(customFilter,sortFilter);
+    const flights = flightRepository.getAllFlights(customFilter, sortFilter);
     return flights;
   } catch (error) {
     throw new AppError(
       "Cannot fetch data of all the flights",
-      StatusCodes.INTERNAL_SERVER_ERROR
+      StatusCodes.INTERNAL_SERVER_ERROR,
     );
+  }
+}
+
+async function getFlight(id) {
+  try {
+    const flight = await flightRepository.get(id);
+    return flight;
+  } catch (error) {
+    if (error.StatusCode === StatusCodes.NOT_FOUND) {
+      throw new AppError("The flight you requested is not present",error.statusCode);
+    }
+    throw new AppError("Cannot fetch data of all the flight", StatusCodes.INTERNAL_SERVER_ERROR)
   }
 }
 module.exports = {
   createFlight,
   getAllFlights,
+  getFlight
 };

@@ -7,9 +7,12 @@ const router = Router();
 router.post(
   "/",
   FlightMiddleware.validateCreateRequest,
-  FlightController.createFlight
+  FlightController.createFlight,
 );
 
 // /api/v1/flights?trips=MUM-DEL GET
-router.get("/", FlightController.getAllFlights)
+router.get("/", FlightController.getAllFlights);
+
+// /api/v1/flights:id GET
+router.get("/:id", FlightController.getFlight);
 module.exports = router;

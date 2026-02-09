@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.Airplane, {
         foreignKey: "airplaneId",
         as: "airplanedetail",
-
       });
       this.belongsTo(models.Airport, {
         foreignKey: "departureAirportId",
@@ -71,11 +70,11 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "Flight",
       tableName: "Flights",
-      underscored: false,  // CHANGED: false instead of true
+      underscored: false, // CHANGED: false instead of true
       timestamps: true,
-      createdAt: "created_at",  // ADDED: explicit mapping
-      updatedAt: "updated_at",  // ADDED: explicit mapping
-    }
+      createdAt: "created_at", // ADDED: explicit mapping
+      updatedAt: "updated_at", // ADDED: explicit mapping
+    },
   );
 
   return Flight;
