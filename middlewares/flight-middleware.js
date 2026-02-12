@@ -73,8 +73,26 @@ const validateCreateRequest = (req, res, next) => {
     ErrorResponse.error = error;
     return res.status(error.statusCode).json(ErrorResponse);
   }
-    next();
-
+  next();
 };
 
-module.exports = { validateCreateRequest };
+const validateUpdateSeatsRequest = (req, res, next) => {
+  // if (!req.body.flightId) {
+  //   ErrorResponse.message = "Something went wrong while updating flight";
+  //   ErrorResponse.error = new AppError([
+  //     "Flight id not found in the incoming request in the correct form",
+  //   ]);
+  //   return (res.status(StatusCodes.BAD_REQUEST), json(ErrorResponse));
+  // }
+
+  if (!req.body.seats) {
+    ErrorResponse.message = "Something went wrong while updating flight";
+    ErrorResponse.error = new AppError([
+      "seats not found in the incoming request in the correct form",
+    ]);
+    return (res.status(StatusCodes.BAD_REQUEST), json(ErrorResponse));
+  }
+  next()
+};
+
+module.exports = { validateCreateRequest, validateUpdateSeatsRequest };

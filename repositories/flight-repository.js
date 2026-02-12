@@ -1,6 +1,7 @@
 const crudRepository = require("./crud-repository");
-const { Flight, Airplane, Airport,City } = require("../models");
+const { Flight, Airplane, Airport, City } = require("../models");
 const Sequelize = require("sequelize");
+const db = require("../models")
 // class flightRepository extends crudRepository {
 //   constructor() {
 //     super(Flight);
@@ -59,46 +60,60 @@ class flightRepository extends crudRepository {
       include: [
         {
           model: Airplane,
-          as: 'airplanedetail',
+          as: "airplanedetail",
           required: true,
         },
         {
           model: Airport,
-          as: 'departureAirport',
+          as: "departureAirport",
           required: true,
           on: {
             col1: Sequelize.where(
               Sequelize.col("Flight.departureAirportId"),
               "=",
-              Sequelize.col("departureAirport.code")
-            )
+              Sequelize.col("departureAirport.code"),
+            ),
           },
           include: {
             model: City,
-            required: true, 
-          }
+            required: true,
+          },
         },
         {
           model: Airport,
-          as: 'arrivalAirport',
-        required: true,
+          as: "arrivalAirport",
+          required: true,
           on: {
             col1: Sequelize.where(
               Sequelize.col("Flight.arrivalAirportId"),
               "=",
-              Sequelize.col("arrivalAirport.code")
-            )
+              Sequelize.col("arrivalAirport.code"),
+            ),
           },
           include: {
             model: City,
-            required: true, 
-          }
-        }
-      ]
+            required: true,
+          },
+        },
+      ],
     });
     return response;
+  }
+
+  async updateRemainingSeats(flightId, seats, dec = true) {
+    await db.sequelize.query(`SELECT * FROM Flights WHERE Flights.id= ${flightId} FOR UPDATE`)
+    const flight = await Flight.findByPk(flightId); 
+    if (parseInt(dec)) {
+      await flight.decrement("totalSeat", { by: seats });
+      await flight.reload();
+      return flight;
+    } else {
+      await flight.increment("totalSeat", { by: seats });
+      await flight.reload();
+      return flight;
+    }
   }
 }
 
 module.exports = flightRepository;
-module.exports = flightRepository;
+// module.exports = flightRepository;

@@ -2,6 +2,7 @@ const { StatusCodes } = require("http-status-codes");
 const { FlightRepository } = require("../repositories");
 const AppError = require("../utils/errors/appError");
 const { Airport } = require("../models");
+const { Flight } = require("../models");
 const { compareTime } = require("../utils/helpers/dateTime");
 const { Op } = require("sequelize");
 
@@ -122,13 +123,49 @@ async function getFlight(id) {
     return flight;
   } catch (error) {
     if (error.StatusCode === StatusCodes.NOT_FOUND) {
-      throw new AppError("The flight you requested is not present",error.statusCode);
+      throw new AppError(
+        "The flight you requested is not present",
+        error.statusCode,
+      );
     }
-    throw new AppError("Cannot fetch data of all the flight", StatusCodes.INTERNAL_SERVER_ERROR)
+    throw new AppError(
+      "Cannot fetch data of the flight",
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
+}
+
+async function updateSeats(data) {
+  try {
+    const flight = await Flight.findByPk(data.flightId);
+    if (!flight) {
+      throw new AppError("Flight not found", StatusCodes.NOT_FOUND);
+    }
+
+    if (data.dec && flight.totalSeat < data.seats) {
+      throw new AppError(
+        "Not enough seats available",
+        StatusCodes.BAD_REQUEST
+      );
+    }
+    const response = await flightRepository.updateRemainingSeats(
+      data.flightId,
+      data.seats,
+      data.dec,
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+
+    throw new AppError(
+      "Cannot update data of the flight",
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
   }
 }
 module.exports = {
   createFlight,
   getAllFlights,
-  getFlight
+  getFlight,
+  updateSeats,
 };
