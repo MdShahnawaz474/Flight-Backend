@@ -118,15 +118,18 @@ async function getAllFlights(query) {
 }
 
 async function getFlight(id) {
-  try {
+  try { 
     const flight = await flightRepository.get(id);
-    return flight;
-  } catch (error) {
-    if (error.StatusCode === StatusCodes.NOT_FOUND) {
+      if (!flight) {
       throw new AppError(
         "The flight you requested is not present",
-        error.statusCode,
+        StatusCodes.NOT_FOUND
       );
+    }
+    return flight;
+  } catch (error) {
+     if (error instanceof AppError) {
+      throw error;
     }
     throw new AppError(
       "Cannot fetch data of the flight",
@@ -155,7 +158,7 @@ async function updateSeats(data) {
     );
     return response;
   } catch (error) {
-    console.log(error);
+    console.log(error); 
 
     throw new AppError(
       "Cannot update data of the flight",
